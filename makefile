@@ -12,6 +12,14 @@ OBJECTS := $(patsubst $(SRC_DIR)/%,$(BUILD_DIR)/%,$(SOURCES:.$(SRC_EXT)=.$(OBJ_E
 
 UTIL_STAT_LIB := $(LIB_DIR)/libutil.a
 
+all: $(UTIL_STAT_LIB)
+	@mkdir -p $(dir $(UTIL_STAT_LIB))
+	ar rvs $(UTIL_STAT_LIB) $(OBJECTS)
+	@echo "Build Success!!!"
+
+echoTest:
+	@echo "echo TEST"
+
 #Compile each .cpp file
 $(BUILD_DIR)/%.$(OBJ_EXT): $(SRC_DIR)/%.$(SRC_EXT)
 	@mkdir -p $(dir $@)
@@ -21,11 +29,11 @@ $(BUILD_DIR)/%.$(OBJ_EXT): $(SRC_DIR)/%.$(SRC_EXT)
 	@echo "Build Success!!!"
 	@echo ""
 
-genStatLib: $(OBJECTS)
+$(UTIL_STAT_LIB): $(OBJECTS)
 	@mkdir -p $(dir $(UTIL_STAT_LIB))
 	ar rvs $(UTIL_STAT_LIB) $(OBJECTS)
 	@echo "Build Success!!!"
 
-
-echoTest:
-	@echo "echo TEST"
+clean:
+	@rm -rf $(BUILD_DIR)
+	@rm -rf $(LIB_DIR)

@@ -16,6 +16,10 @@
 #include <chrono>
 
 
+void createCSV(std::string fpath, char *header);
+
+void appendRow(std::string fpath, char *row);
+
 bool hasOption(std::vector<std::string> &arguments, std::string option);
 
 std::string valueOf(std::vector<std::string> &arguments, std::string option);
@@ -37,8 +41,8 @@ public:
     ~TimeTracker() {}
     //
     std::string get_curTime();
-    double get_elipsedTimeCPU();
-    double get_elipsedTimeWall();
+    double get_elapsedTimeCPU();
+    double get_elapsedTimeWall();
 };
 
 class FilePathOrganizer {

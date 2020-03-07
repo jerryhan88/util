@@ -1,4 +1,24 @@
-#include "../include/util.hpp"
+#include "../include/ck_util/util.hpp"
+
+void createCSV(std::string fpath, char *header) {
+    if (fpath == "") {
+        return;
+    }
+    std::fstream fout;
+    fout.open(fpath, std::ios::out);
+    fout << header << "\n";
+    fout.close();
+}
+
+void appendRow(std::string fpath, char *row) {
+    if (fpath == "") {
+        return;
+    }
+    std::fstream fout;
+    fout.open(fpath, std::ios::out | std::ios::app);
+    fout << row << "\n";
+    fout.close();
+}
 
 bool hasOption(std::vector<std::string> &arguments, std::string option) {
     bool hasValue = false;
@@ -55,12 +75,12 @@ std::string TimeTracker::get_curTime() {
     return std::string(dt);
 }
 
-double TimeTracker::get_elipsedTimeCPU() {
+double TimeTracker::get_elapsedTimeCPU() {
     std::clock_t c_end = std::clock();
     return (c_end-c_start) / (double) CLOCKS_PER_SEC;
 }
 
-double TimeTracker::get_elipsedTimeWall() {
+double TimeTracker::get_elapsedTimeWall() {
     std::chrono::high_resolution_clock::time_point w_end = std::chrono::high_resolution_clock::now();
     return std::chrono::duration<double, std::milli>(w_end-w_start).count() / 1000.0;
 }

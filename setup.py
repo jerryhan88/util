@@ -2,70 +2,59 @@ import os.path as opath
 import platform
 import os
 import sys
+from glob import glob
+
+CXX = 'clang++' if platform.system() == 'Darwin' else 'g++'
+CXX_OPT = '-std=c++11'
 
 SRC_DIR = opath.join(os.getcwd(), 'src')
 BUILD_DIR = opath.join(os.getcwd(), 'build')
 LIB_DIR = opath.join(os.getcwd(), 'lib')
 
-CXX = 'clang++' if platform.system() == 'Darwin' else 'g++'
-CXX_OPT = '-std=c++11'
-
-
 SRC_EXT, OBJ_EXT = 'cpp', 'o'
-SOURCES, OBJECTS = [], []
-for fn in os.listdir(SRC_DIR):
-	if not fn.endswith(SRC_EXT):
-		continue
-	SOURCES.append(opath.join(SRC_DIR, fn))
-	OBJECTS.append(opath.join(BUILD_DIR, fn.replace(SRC_EXT, OBJ_EXT)))
-UTIL_STAT_LIB = opath.join(LIB_DIR, 'libutil.a')
+SOURCES = glob(SRC_DIR + '/**/*.%s' % SRC_EXT, recursive=True)
+OBJECTS = [fpath.replace('src', 'build').replace(SRC_EXT, OBJ_EXT) for fpath in SOURCES]
 
+UTIL_STL = opath.join(LIB_DIR, 'libutil.a')
 
-def getFiles4Comp():
-	if not opath.exists(BUILD_DIR):
-		os.mkdir(BUILD_DIR)
-		assert len(SOURCES) == len(OBJECTS)
-		return SOURCES, OBJECTS
-	#
-	tarSrcs, tarObjs = [], []
-	for i in range(len(SOURCES)):
-		src_fpath, obj_fpath = SOURCES[i], OBJECTS[i]
-		if not opath.exists(obj_fpath) or \
-			opath.getctime(obj_fpath) < opath.getmtime(src_fpath):
-			tarSrcs.append(src_fpath)
-			tarObjs.append(obj_fpath)
-	#
-	assert len(tarSrcs) == len(tarObjs)
-	return tarSrcs, tarObjs
+def hasFlag(flag):
+	for i in range(len(sys.argv)):
+		if sys.argv[i] == flag:
+			return True
+	else:
+		return False
 
-
-def genStatLib():
-	tarSrcs, tarObjs = getFiles4Comp()
-	for i in range(len(tarSrcs)):
-		src_fpath, obj_fpath = tarSrcs[i], tarObjs[i]
-		print("Compile a object file") 
-		print("Target file:", src_fpath, "; Pre-req:", obj_fpath) 
+def comCPP(src_fpath, obj_fpath):
+	if not opath.exists(obj_fpath) or \
+		opath.getctime(obj_fpath) < opath.getmtime(src_fpath):
+		os.makedirs(opath.dirname(obj_fpath), exist_ok=True)
+		print("Start compile") 
+		print("Target file:", obj_fpath, "; Pre-req:", src_fpath) 
 		res = os.system('%s -c %s %s -o %s' % (CXX, CXX_OPT, src_fpath, obj_fpath))
 		assert res == 0
-		print("Build Success!!!") 
-	if not opath.exists(UTIL_STAT_LIB) or len(tarSrcs) > 1:
-		if not opath.exists(LIB_DIR):
-			os.mkdir(LIB_DIR)
-		res = os.system("ar rvs %s %s" % (UTIL_STAT_LIB, ' '.join(OBJECTS)))
+		print("Build Success!!!\n")
+
+def genSTL():
+	for i in range(len(SOURCES)):
+		src_fpath, obj_fpath = SOURCES[i], OBJECTS[i]
+		comCPP(src_fpath, obj_fpath)
+	if not opath.exists(UTIL_STL):
+		os.makedirs(opath.dirname(UTIL_STL), exist_ok=True)
+		print("Build a static library")
+		res = os.system("ar rvs %s %s" % (UTIL_STL, ' '.join(OBJECTS)))
 		assert res == 0
-		print("Build Success!!!") 
+		print("Successfully build the library\n") 
 	else:
-		print("The library exists already") 
+		print("The library exists already\n") 
 
 
 if __name__ == '__main__':
-	if sys.argv[1] == 'genStatLib':
-		genStatLib()
+	if len(sys.argv) == 1:
+		genSTL()
 	else:
-		print("type: python setup.py genStatLib")
+		if hasFlag('clean'):
+			os.system('rm -rf %s' % BUILD_DIR)
+			os.system('rm -rf %s' % LIB_DIR)
+		if hasFlag('stl'):
+			genSTL()
 
-
-
-	# print("This is the name of the script: ", sys.argv[0]) 
-	# print("Number of arguments: ", len(sys.argv)) 
-	# print("The arguments are: " , str(sys.argv)) 
