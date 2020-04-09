@@ -14,6 +14,7 @@
 #include <fstream>
 #include <ctime>
 #include <chrono>
+#include <algorithm>
 
 
 void createCSV(std::string fpath, char *header);
