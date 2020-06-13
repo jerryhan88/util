@@ -41,14 +41,18 @@ public:
     }
     ~TimeTracker() {}
     //
-    std::string get_curTime();
+    static std::string get_curTime() {
+        time_t now = time(0);
+        char* dt = ctime(&now);
+        return std::string(dt);
+    }
     double get_elapsedTimeCPU();
     double get_elapsedTimeWall();
 };
 
 class FilePathOrganizer {
 public:
-    std::string logPath, solPathCSV, solPathTXT, lpPath, ilpPath;
+    std::string logPath, solPathCSV, solPathTXT, lpPath, ilpPath, jsonPath;
     //
     FilePathOrganizer(const std::string &appr_dpath, const std::string &postfix) {
 		std::string appr_name = appr_dpath.substr(appr_dpath.find_last_of("/") + 1, appr_dpath.size());
@@ -59,6 +63,7 @@ public:
 		this->solPathTXT = prefix + ".txt";
 		this->lpPath = prefix + ".lp";
 		this->ilpPath = prefix + ".ilp";
+        this->jsonPath = prefix + ".json";
     }
     ~FilePathOrganizer() {}
 };

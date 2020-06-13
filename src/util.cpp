@@ -69,11 +69,11 @@ std::vector<std::string> read_directory(const std::string &d_path, const std::st
     return fileNames;
 }
 
-std::string TimeTracker::get_curTime() {
-    time_t now = time(0);
-    char* dt = ctime(&now);
-    return std::string(dt);
-}
+// std::string TimeTracker::get_curTime() {
+//     time_t now = time(0);
+//     char* dt = ctime(&now);
+//     return std::string(dt);
+// }
 
 double TimeTracker::get_elapsedTimeCPU() {
     std::clock_t c_end = std::clock();
